@@ -1,2 +1,2 @@
 # SlabBasedBilling
-Genates monthly electricity bill based on defined slab value
+Generates monthly electricity bill based on defined slab value
