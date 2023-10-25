@@ -27,6 +27,7 @@ public class CustomerController {
         return customerService.registerCustomer(registerCustomerRequest);
     }
 
+    // useful when there is front-end implementation
     @PostMapping(value = "/login")
     public GenericResponse login(@RequestBody LoginRequest loginRequest) {
         return customerService.loginCustomer(loginRequest);
