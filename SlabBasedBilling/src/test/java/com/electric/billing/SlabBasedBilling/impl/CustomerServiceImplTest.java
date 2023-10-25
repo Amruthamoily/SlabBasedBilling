@@ -25,8 +25,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -48,8 +46,6 @@ public class CustomerServiceImplTest {
 
     @InjectMocks
     CustomerServiceImpl customerServiceImpl = new CustomerServiceImpl();
-
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @BeforeEach
     public void init() {
@@ -195,6 +191,34 @@ public class CustomerServiceImplTest {
     }
 
     @Test
+    @DisplayName("when password or email patter is invalid, then the method returns appropriate error response")
+    void forRegisterCustomer_whenPasswordOrEmailPatternIsInValid_thenTheMethodReturnsAppropriateErrorResponse() {
+        //Initialization
+        RegisterCustomerRequest request = new RegisterCustomerRequest();
+        request.setId(2);
+        request.setFullName("xyz user");
+        request.setUserName("xyz");
+        request.setEmail("xyzgmail.com");
+        request.setPassword("xyz@1234");
+        request.setAddress("Anugraha Nilaya");
+        request.setAccountNumber("12345");
+        request.setMobileNumber("9657678554");
+        request.setMeterNumber("4534564");
+        request.setNotificationPref("email");
+        request.setPaymentMethod("UPI");
+        request.setSecurityQn("what is your pet name");
+        request.setTariff("1A");
+
+        //calling original method
+        GenericResponse response = customerServiceImpl.registerCustomer(request);
+
+        // Test validations / Assertions
+        Assertions.assertEquals("Error", response.getStatus());
+        Assertions.assertEquals(Constants.RG_ERR3, response.getErrorCode());
+        Assertions.assertEquals("Not a valid Email or Password pattern", response.getMessage());
+    }
+
+    @Test
     @DisplayName("when registerCustomer method throws Exception, then the method returns appropriate error response")
     void forRegisterCustomer_whenRegisterCustomerMethodThrowsException_thenTheMethodReturnsAppropriateErrorResponse() {
         //Initialization
@@ -298,6 +322,22 @@ public class CustomerServiceImplTest {
         Assertions.assertEquals("Invalid password", response.getMessage());
     }
 
+    @Test
+    @DisplayName("when password or email patter is invalid, then the method returns appropriate error response")
+    void forLoginCustomer_whenPasswordOrEmailPatternIsInValid_thenTheMethodReturnsAppropriateErrorResponse() {
+        //Initialization
+        LoginRequest request = new LoginRequest();
+        request.setEmail("abcgmail.com");
+        request.setPassword("Abc@1234");
+
+        //calling original method
+        GenericResponse response = customerServiceImpl.loginCustomer(request);
+
+        // Test validations / Assertions
+        Assertions.assertEquals("Error", response.getStatus());
+        Assertions.assertEquals(Constants.LG_ERR3, response.getErrorCode());
+        Assertions.assertEquals("Not a valid Email or Password pattern", response.getMessage());
+    }
 
 
     @Test
@@ -323,6 +363,7 @@ public class CustomerServiceImplTest {
     @Test
     @DisplayName("when price slab details are not duplicate, then the price slab details are stored in data base")
     void forSetPriceSlab_whenPriceSlabDetailsAreNotDuplicate_thenThePriceSlabDetailsAreStoredInDataBase() {
+        //Initialization
         SlabReadingRequest request = new SlabReadingRequest();
         request.setSlabId(1);
         request.setSlabName("1A");
@@ -349,6 +390,7 @@ public class CustomerServiceImplTest {
     @Test
     @DisplayName("when price slab details are duplicate, then the method returns appropriate error response")
     void forSetPriceSlab_whenPriceSlabDetailsAreDuplicate_thenTheMethodReturnsAppropriateErrorResponse() {
+        //Initialization
         SlabReadingRequest request = new SlabReadingRequest();
         request.setSlabId(1);
         request.setSlabName("1A");
@@ -362,11 +404,14 @@ public class CustomerServiceImplTest {
         SlabReading slabReading = new SlabReading(1, "1A", 8.23, new Date(2023, Calendar.MARCH, 1), new Date(2023, Calendar.MARCH, 30), 50, 0);
         slabReadingList.add(slabReading);
 
+        // Mocking response
         Mockito.when(slabRepository.findAll()).thenReturn(slabReadingList);
         Mockito.when(slabRepository.save(Mockito.any())).thenReturn(slabReading);
 
+        //calling original method
         GenericResponse genericResponse = customerServiceImpl.setPriceSlab(request);
 
+        // Test validations / Assertions
         Assertions.assertEquals("Error", genericResponse.getStatus());
         Assertions.assertEquals(Constants.SET_SLB_ERR2, genericResponse.getErrorCode());
         Assertions.assertEquals("Duplicate slab. Slab already defined", genericResponse.getMessage());
@@ -375,6 +420,7 @@ public class CustomerServiceImplTest {
     @Test
     @DisplayName("when price slab details are not stored in to the data base, then the method returns appropriate error response")
     void forSetPriceSlab_whenPriceSlabDetailsAreNotStoredInToTheDataBase_thenTheMethodReturnsAppropriateErrorResponse() {
+        //Initialization
         SlabReadingRequest request = new SlabReadingRequest();
         request.setSlabId(1);
         request.setSlabName("1A");
@@ -383,16 +429,18 @@ public class CustomerServiceImplTest {
         request.setEndDate(new Date(2023, Calendar.MARCH, 30));
         request.setMinLimit(50);
         request.setMaxLimit(0);
-
         List<SlabReading> slabReadingList = new ArrayList<>();
         SlabReading slabReading = new SlabReading(1, "1A", 7.00, new Date(2023, Calendar.FEBRUARY, 1), new Date(2023, Calendar.FEBRUARY, 28), 0, 50);
         slabReadingList.add(slabReading);
 
+        // Mocking response
         Mockito.when(slabRepository.findAll()).thenReturn(slabReadingList);
         Mockito.when(slabRepository.save(Mockito.any())).thenReturn(new SlabReading());
 
+        //calling original method
         GenericResponse genericResponse = customerServiceImpl.setPriceSlab(request);
 
+        // Test validations / Assertions
         Assertions.assertEquals("Error", genericResponse.getStatus());
         Assertions.assertEquals(Constants.SET_SLB_ERR1, genericResponse.getErrorCode());
         Assertions.assertEquals("Could not save price slab details. Please try after some time.", genericResponse.getMessage());
@@ -401,6 +449,7 @@ public class CustomerServiceImplTest {
     @Test
     @DisplayName("when setPriceSlab method throws Exception, then the method returns appropriate error response")
     void forSetPriceSlab_whenSetPriceSlabMethodThrowsException_thenTheMethodReturnsAppropriateErrorResponse() {
+        //Initialization
         SlabReadingRequest request = new SlabReadingRequest();
         request.setSlabId(1);
         request.setSlabName("1A");
@@ -410,10 +459,13 @@ public class CustomerServiceImplTest {
         request.setMinLimit(50);
         request.setMaxLimit(0);
 
+        // Mocking response
         Mockito.when(slabRepository.findAll()).thenReturn(null);
 
+        //calling original method
         GenericResponse genericResponse = customerServiceImpl.setPriceSlab(request);
 
+        // Test validations / Assertions
         Assertions.assertEquals("Error", genericResponse.getStatus());
         Assertions.assertEquals(Constants.EXP_SET_SLB, genericResponse.getErrorCode());
         Assertions.assertEquals("Exception occurred in setPriceSlab", genericResponse.getMessage());
@@ -422,16 +474,20 @@ public class CustomerServiceImplTest {
     @Test
     @DisplayName("when price slab table contains data, then the method should return price slab")
     void forGetPriceSlab_whenPriceSlabTableContainsData_thenTheMethodShouldReturnPriceSlab() {
+        //Initialization
         List<SlabReading> slabReadingList = new ArrayList<>();
         SlabReading slabReading1 = new SlabReading(1, "1A", 8.23, new Date(2023, Calendar.MARCH, 1), new Date(2023, Calendar.MARCH, 30), 50, 0);
         SlabReading slabReading2 = new SlabReading(2, "2A", 7.00, new Date(2023, Calendar.MARCH, 1), new Date(2023, Calendar.MARCH, 30), 50, 0);
         slabReadingList.add(slabReading1);
         slabReadingList.add(slabReading2);
 
+        // Mocking response
         Mockito.when(slabRepository.findAll()).thenReturn(slabReadingList);
 
+        //calling original method
         SlabReadingResponse response = customerServiceImpl.getPriceSlab();
 
+        // Test validations / Assertions
         Assertions.assertEquals("Success", response.getStatus());
         Assertions.assertEquals("price slab loaded successfully", response.getMessage());
         Assertions.assertEquals(slabReading1.getSlabName(), response.getSlabReadingTos().get(0).getSlabName());
@@ -441,10 +497,13 @@ public class CustomerServiceImplTest {
     @Test
     @DisplayName("when price slab is empty, then the method returns appropriate error response")
     void forGetPriceSlab_whenPriceSlabIsEmpty_thenTheMethodReturnsAppropriateErrorResponse() {
+        // Mocking response
         Mockito.when(slabRepository.findAll()).thenReturn(new ArrayList<>());
 
+        //calling original method
         SlabReadingResponse response = customerServiceImpl.getPriceSlab();
 
+        // Test validations / Assertions
         Assertions.assertEquals("Error", response.getStatus());
         Assertions.assertEquals(Constants.GET_SLB_ERR1, response.getErrorCode());
         Assertions.assertEquals("Enable to load price slab", response.getMessage());
@@ -453,26 +512,34 @@ public class CustomerServiceImplTest {
     @Test
     @DisplayName("when getPriceSlab method throws Exception, then the method returns appropriate error response")
     void forGetPriceSlab_whenGetPriceSlabMethodThrowsException_thenTheMethodReturnsAppropriateErrorResponse() {
+        // Mocking response
         Mockito.when(slabRepository.findAll()).thenReturn(null);
 
+        //calling original method
         SlabReadingResponse response = customerServiceImpl.getPriceSlab();
 
-        Assertions.assertEquals("Error", response.getStatus());
+        // Test validations / Assertions
         Assertions.assertEquals(Constants.EXP_GET_SLB, response.getErrorCode());
         Assertions.assertEquals("Exception occurred in getPriceSlab", response.getMessage());
+        Assertions.assertEquals("Error", response.getStatus());
     }
 
     @Test
     @DisplayName("when bill details corresponding to the bill number is present in the MeterReading table, then the method should return bill detail")
     void forGenerateBill_whenBillDetailsCorrespondingToTheBillNumberIsPresentInTheMeterReadingTable_thenTheMethodShouldReturnBillDetail() {
+        //Initialization
         MeterReading meterReading = new MeterReading("12345", "1134455", new Date(2023, Calendar.APRIL, 1), new Date(2023, Calendar.APRIL, 30), 6698, 6690, "328834", "1A", 89.00, "0897763","3567363");
         List<MeterReading> meterReadings = new ArrayList<>();
         meterReadings.add(meterReading);
+
+        // Mocking response
         Mockito.when(meterRepository.findByBillNo(Mockito.anyString())).thenReturn(meterReading);
         Mockito.when(meterRepository.findAll()).thenReturn(meterReadings);
 
+        //calling original method
         BillDetailsResponse response = customerServiceImpl.generateBill("12345");
 
+        // Test validations / Assertions
         Assertions.assertEquals("12345", response.getBillNo());
         Assertions.assertEquals("Success", response.getStatus());
         Assertions.assertEquals("Bill generated successfully", response.getMessage());
@@ -481,22 +548,27 @@ public class CustomerServiceImplTest {
     @Test
     @DisplayName("when bill details corresponding to the bill number is not present in the MeterReading table, then the method returns appropriate error response")
     void forGenerateBill_whenBillDetailsCorrespondingToTheBillNumberIsNotPresentInTheMeterReadingTable_thenTheMethodReturnsAppropriateErrorResponse() {
+        // Mocking response
         Mockito.when(meterRepository.findByBillNo(Mockito.anyString())).thenReturn(new MeterReading());
 
+        //calling original method
         BillDetailsResponse response = customerServiceImpl.generateBill("12345");
 
+        // Test validations / Assertions
         Assertions.assertEquals("Error", response.getStatus());
-
         Assertions.assertEquals("Could not find the bill details", response.getMessage());
     }
 
     @Test
     @DisplayName("when generateBill method throws Exception, then the method returns appropriate error response")
     void forGenerateBill_whenGenerateBillMethodThrowsException_thenTheMethodReturnsAppropriateErrorResponse() {
+        // Mocking response
         Mockito.when(meterRepository.findByBillNo(Mockito.anyString())).thenThrow(new NullPointerException());
 
+        //calling original method
         BillDetailsResponse response = customerServiceImpl.generateBill("12345");
 
+        // Test validations / Assertions
         Assertions.assertEquals("Error", response.getStatus());
         Assertions.assertEquals(Constants.EXP_GB, response.getErrorCode());
         Assertions.assertEquals("Exception occurred in generateBill", response.getMessage());
@@ -505,6 +577,7 @@ public class CustomerServiceImplTest {
     @Test
     @DisplayName("when slab details are empty, then the method returns appropriate error response")
     void forSetPriceSlab_whenSlabReadingDetailsAreEmpty_thenTheMethodReturnsAppropriateErrorResponse() {
+        //Initialization
         MeterReadingRequest request = new MeterReadingRequest();
         request.setBillNo("12345");
         request.setBillPeriod("30 days");
@@ -521,11 +594,14 @@ public class CustomerServiceImplTest {
         MeterReading meterReading = new MeterReading("123456", "30 days", new Date(2023, Calendar.MARCH, 1), new Date(2023, Calendar.MARCH, 30), 1335, 1325, "124485", "1A", 8.23, "686415", "87500");
         meterReadingList.add(meterReading);
 
+        // Mocking response
         Mockito.when( meterRepository.findAll()).thenReturn(meterReadingList);
         Mockito.when( slabRepository.findOneBySlabNameAndStartDateAndEndDate(Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(new ArrayList<>());
 
+        //calling original method
         GenericResponse genericResponse = customerServiceImpl.setMeterReading(request);
 
+        // Test validations / Assertions
         Assertions.assertEquals("Error", genericResponse.getStatus());
         Assertions.assertEquals("Slab not set", genericResponse.getMessage());
     }
@@ -533,6 +609,7 @@ public class CustomerServiceImplTest {
     @Test
     @DisplayName("when current reading is smaller than previous reading, then the method returns appropriate error response")
     void forSetPriceSlab_whenCurrentReadingIsLessThanPreviousReading_thenTheMethodReturnsAppropriateErrorResponse() {
+        //Initialization
         MeterReadingRequest request = new MeterReadingRequest();
         request.setBillNo("12345");
         request.setBillPeriod("30 days");
@@ -549,11 +626,14 @@ public class CustomerServiceImplTest {
         MeterReading meterReading = new MeterReading("123456", "30 days", new Date(2023, Calendar.MARCH, 1), new Date(2023, Calendar.MARCH, 30), 1335, 1325, "124485", "1A", 8.23, "686415", "87500");
         meterReadingList.add(meterReading);
 
+        // Mocking response
         Mockito.when( meterRepository.findAll()).thenReturn(meterReadingList);
         Mockito.when( slabRepository.findOneBySlabNameAndStartDateAndEndDate(Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(new ArrayList<>());
 
+        //calling original method
         GenericResponse genericResponse = customerServiceImpl.setMeterReading(request);
 
+        // Test validations / Assertions
         Assertions.assertEquals("Error", genericResponse.getStatus());
         Assertions.assertEquals("current reading is less than previous reading", genericResponse.getMessage());
     }
@@ -561,6 +641,7 @@ public class CustomerServiceImplTest {
     @Test
     @DisplayName("when slab details corresponding to the meter tariff is not present, then the method returns appropriate error response")
     void forSetPriceSlab_whenSlabDetailsCorrespondingToTheMeterTariffIsNotPresent_thenTheMethodReturnsAppropriateErrorResponse() {
+        //Initialization
         MeterReadingRequest request = new MeterReadingRequest();
         request.setBillNo("12345");
         request.setBillPeriod("30 days");
@@ -581,11 +662,14 @@ public class CustomerServiceImplTest {
         SlabReading slabReading = new SlabReading(1, "2A", 7.00, new Date(2023, Calendar.MARCH, 1), new Date(2023, Calendar.MARCH, 30), 50, 0);
         slabReadingList.add(slabReading);
 
+        // Mocking response
         Mockito.when(meterRepository.findAll()).thenReturn(meterReadingList);
         Mockito.when(slabRepository.findOneBySlabNameAndStartDateAndEndDate(Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(slabReadingList);
 
+        //calling original method
         GenericResponse genericResponse = customerServiceImpl.setMeterReading(request);
 
+        // Test validations / Assertions
         Assertions.assertEquals("Error", genericResponse.getStatus());
         Assertions.assertEquals("slab reading does not match", genericResponse.getMessage());
     }
@@ -593,6 +677,7 @@ public class CustomerServiceImplTest {
     @Test
     @DisplayName("when meter reading is not inserted in to the meter reading table, then the method returns appropriate error response")
     void forSetPriceSlab_whenMeterReadingIsNotInsertedInToTheMeterReadingTable_thenTheMethodReturnsAppropriateErrorResponse() {
+        //Initialization
         MeterReadingRequest request = new MeterReadingRequest();
         request.setBillNo("12345");
         request.setBillPeriod("30 days");
@@ -613,12 +698,15 @@ public class CustomerServiceImplTest {
         SlabReading slabReading = new SlabReading(1, "1A", 7.00, new Date(2023, Calendar.MARCH, 1), new Date(2023, Calendar.MARCH, 30), 0, 50);
         slabReadingList.add(slabReading);
 
+        // Mocking response
         Mockito.when(meterRepository.findAll()).thenReturn(meterReadingList);
         Mockito.when(slabRepository.findOneBySlabNameAndStartDateAndEndDate(Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(slabReadingList);
         Mockito.when(meterRepository.save(Mockito.any())).thenReturn(new MeterReading());
 
+        //calling original method
         GenericResponse genericResponse = customerServiceImpl.setMeterReading(request);
 
+        // Test validations / Assertions
         Assertions.assertEquals("Error", genericResponse.getStatus());
         Assertions.assertEquals("Could not save details. Please try after some time.", genericResponse.getMessage());
     }
@@ -626,6 +714,7 @@ public class CustomerServiceImplTest {
     @Test
     @DisplayName("when slab details corresponding to the meter with consumption less than 50 are present , then the method returns bill reading with success response")
     void forSetPriceSlab_whenSlabDetailsCorrespondingToTheMeterWithConsumptionLessThanFiftyArePresent_thenTheMethodReturnsBillReadingWithSuccessResponse() {
+        //Initialization
         MeterReadingRequest request = new MeterReadingRequest();
         request.setBillNo("12345");
         request.setBillPeriod("30 days");
@@ -643,12 +732,15 @@ public class CustomerServiceImplTest {
         SlabReading slabReading = new SlabReading(1, "1A", 7.00, new Date(2023, Calendar.MARCH, 1), new Date(2023, Calendar.MARCH, 30), 0, 50);
         slabReadingList.add(slabReading);
 
+        // Mocking response
         Mockito.when(meterRepository.findAll()).thenReturn(new ArrayList<>());
         Mockito.when(slabRepository.findOneBySlabNameAndStartDateAndEndDate(Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(slabReadingList);
         Mockito.when(meterRepository.save(Mockito.any())).thenReturn(meterReading);
 
+        //calling original method
         GenericResponse genericResponse = customerServiceImpl.setMeterReading(request);
 
+        // Test validations / Assertions
         Assertions.assertEquals("Success", genericResponse.getStatus());
         Assertions.assertEquals("Meter readings saved successfully", genericResponse.getMessage());
     }
@@ -656,6 +748,7 @@ public class CustomerServiceImplTest {
     @Test
     @DisplayName("when slab details with corresponding to the meter with consumption greater than 50 reading are present, then the method returns bill reading with success response")
     void forSetPriceSlab_whenSlabDetailsWithCorrespondingToTheMeterWithConsumptionGreaterThanFiftyArePresent_thenTheMethodReturnsBillReadingWithSuccessResponse() {
+        //Initialization
         MeterReadingRequest request = new MeterReadingRequest();
         request.setBillNo("12345");
         request.setBillPeriod("30 days");
@@ -673,12 +766,15 @@ public class CustomerServiceImplTest {
         SlabReading slabReading = new SlabReading(1, "1A", 7.00, new Date(2023, Calendar.MARCH, 1), new Date(2023, Calendar.MARCH, 30), 50, 0);
         slabReadingList.add(slabReading);
 
+        // Mocking response
         Mockito.when(meterRepository.findAll()).thenReturn(new ArrayList<>());
         Mockito.when(slabRepository.findOneBySlabNameAndStartDateAndEndDate(Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(slabReadingList);
         Mockito.when(meterRepository.save(Mockito.any())).thenReturn(meterReading);
 
+        //calling original method
         GenericResponse genericResponse = customerServiceImpl.setMeterReading(request);
 
+        // Test validations / Assertions
         Assertions.assertEquals("Success", genericResponse.getStatus());
         Assertions.assertEquals("Meter readings saved successfully", genericResponse.getMessage());
     }
@@ -686,6 +782,7 @@ public class CustomerServiceImplTest {
     @Test
     @DisplayName("when meter reading details are duplicate, then the method returns appropriate error response")
     void forSetPriceSlab_whenMeterReadingDetailsAreDuplicate_thenTheMethodReturnsAppropriateErrorResponse() {
+        //Initialization
         MeterReadingRequest request = new MeterReadingRequest();
         request.setBillNo("12345");
         request.setBillPeriod("30 days");
@@ -702,10 +799,13 @@ public class CustomerServiceImplTest {
         MeterReading meterReading = new MeterReading("12345", "30 days", new Date(2023, Calendar.MARCH, 1), new Date(2023, Calendar.MARCH, 30), 1335, 1325, "124485", "1A", 8.23, "686415", "87500");
         meterReadingList.add(meterReading);
 
+        // Mocking response
         Mockito.when( meterRepository.findAll()).thenReturn(meterReadingList);
 
+        //calling original method
         GenericResponse genericResponse = customerServiceImpl.setMeterReading(request);
 
+        // Test validations / Assertions
         Assertions.assertEquals("Error", genericResponse.getStatus());
         Assertions.assertEquals("Bill number already exist.", genericResponse.getMessage());
     }
@@ -713,6 +813,7 @@ public class CustomerServiceImplTest {
     @Test
     @DisplayName("when setMeterReading method throws Exception, then the method returns appropriate error response")
     void forGenerateBill_whenSetMeterReadingMethodThrowsException_thenTheMethodReturnsAppropriateErrorResponse() {
+        //Initialization
         MeterReadingRequest meterReadingRequest = new MeterReadingRequest();
         meterReadingRequest.setBillNo("12345");
         meterReadingRequest.setMeterNumber("562568");
@@ -725,10 +826,13 @@ public class CustomerServiceImplTest {
         meterReadingRequest.setBillPeriod("30 days");
         meterReadingRequest.setRrNumber("82132");
 
+        // Mocking response
         Mockito.when(meterRepository.findAll()).thenReturn(null);
 
+        //calling original method
         GenericResponse response = customerServiceImpl.setMeterReading(meterReadingRequest);
 
+        // Test validations / Assertions
         Assertions.assertEquals("Error", response.getStatus());
         Assertions.assertEquals(Constants.EXP_SET_MTR, response.getErrorCode());
         Assertions.assertEquals("Exception occurred in setMeterReading", response.getMessage());

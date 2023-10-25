@@ -1,10 +1,10 @@
 package com.electric.billing.SlabBasedBilling.entities;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
-
-import java.util.Calendar;
 import java.util.Date;
 
 @Entity
