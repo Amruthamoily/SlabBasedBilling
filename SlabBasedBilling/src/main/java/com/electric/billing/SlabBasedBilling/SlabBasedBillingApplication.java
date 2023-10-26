@@ -29,6 +29,6 @@ public class SlabBasedBillingApplication {
 	private ApiInfo apiInfo() {
 		return new ApiInfoBuilder().title("Slab Based Billing")
 				.description("Check you electricity bill by clicking try now button")
-				.termsOfServiceUrl("https://simplifyingtechcode.wordpress.com/").licenseUrl("simplifyingtech@gmail.com").version("2.0").build();
+				.version("2.0").build();
 	}
 }
